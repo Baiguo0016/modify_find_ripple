@@ -245,15 +245,52 @@ if ~isempty(noise)
 end
 
 
+%     %% lets try to also remove EMG artifact?
+% if EMGThresh
+%     sessionInfo = bz_getSessionInfo(basepath,'noprompts',true);
+%     EMGfilename = fullfile(basepath,[sessionInfo.FileName '.EMGFromLFP.LFP.mat']);
+%     if exist(EMGfilename)
+%         load(EMGfilename)   %should use a bz_load script here
+%     else
+%         [EMGFromLFP] = bz_EMGFromLFP(basepath,'samplingFrequency',10,'savemat',false,'noPrompts',true);
+%     end
+%     excluded = logical(zeros(size(ripples,1),1));
+%     for i = 1:size(ripples,1)
+%        [a ts] = min(abs(ripples(i,1)-EMGFromLFP.timestamps)); % get closest sample
+%        if EMGFromLFP.data(ts) > EMGThresh
+%            excluded(i) = 1;           
+%        end
+%     end
+%     bad = sortrows([bad; ripples(excluded,:)]);
+%     ripples = ripples(~excluded,:);
+%     disp(['After EMG noise removal: ' num2str(size(ripples,1)) ' events.']);
+% end
+
+%     %% lets try to also remove EMG artifact?
+% if EMGThresh
+%     sessionInfo = bz_getSessionInfo(basepath,'noprompts',true);
+%     EMGfilename = fullfile(basepath,[sessionInfo.FileName '.EMGFromLFP.LFP.mat']);
+%     if exist(EMGfilename)
+%         load(EMGfilename)   %should use a bz_load script here
+%     else
+%         [EMGFromLFP] = bz_EMGFromLFP(basepath,'samplingFrequency',10,'savemat',false,'noPrompts',true);
+%     end
+%     excluded = logical(zeros(size(ripples,1),1));
+%     for i = 1:size(ripples,1)
+%        [a ts] = min(abs(ripples(i,1)-EMGFromLFP.timestamps)); % get closest sample
+%        if EMGFromLFP.data(ts) > EMGThresh
+%            excluded(i) = 1;           
+%        end
+%     end
+%     bad = sortrows([bad; ripples(excluded,:)]);
+%     ripples = ripples(~excluded,:);
+%     disp(['After EMG noise removal: ' num2str(size(ripples,1)) ' events.']);
+% end
+
+
     %% lets try to also remove EMG artifact?
 if EMGThresh
-    sessionInfo = bz_getSessionInfo(basepath,'noprompts',true);
-    EMGfilename = fullfile(basepath,[sessionInfo.FileName '.EMGFromLFP.LFP.mat']);
-    if exist(EMGfilename)
-        load(EMGfilename)   %should use a bz_load script here
-    else
-        [EMGFromLFP] = bz_EMGFromLFP(basepath,'samplingFrequency',10,'savemat',false,'noPrompts',true);
-    end
+    [EMGFromLFP] = bz_EMGFromLFP(basepath,'samplingFrequency',10,'savemat',false,'noPrompts',true);
     excluded = logical(zeros(size(ripples,1),1));
     for i = 1:size(ripples,1)
        [a ts] = min(abs(ripples(i,1)-EMGFromLFP.timestamps)); % get closest sample
@@ -349,6 +386,7 @@ ripples.timestamps = rips(:,[1 3]);
 ripples.peaks = rips(:,2);            %peaktimes? could also do these as timestamps and then ripples.ints for start/stops?
 ripples.peakNormedPower = rips(:,4);  %amplitudes?
 ripples.stdev = sd;
+ripples.signal = signal;
 if ~isempty(bad)
     ripples.noise.times = bad(:,[1 3]);
     ripples.noise.peaks = bad(:,[2]);

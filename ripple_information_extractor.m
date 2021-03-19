@@ -51,29 +51,23 @@ clear ripple;
 fs=1000; 
 nr_epoches = size(NREMEpoches);
 
-
-% data = NREMEpoches{16};
-% t = [0:length(data)-1]*(1/fs);
-% t = t';
-% ripples = bz_FindRipples(data ,t, 'thresholds',ripthresh, 'durations',ripdur,'show','on','EMGThresh', 0, 'saveMat',true);
-
-
 for idx_epoches = 1 : nr_epoches
     
     data = NREMEpoches{idx_epoches};
-    t = [0:length(data)-1]*(1/fs);
+    t = [0:length(data)-1 ]*(1/fs);
     t = t.';
     ripples = bz_FindRipples(data ,t, 'thresholds',ripthresh, 'durations',ripdur,'show','off','EMGThresh', 0, 'saveMat',true);
     size_ripple = size(ripples.timestamps);
     nr_ripples(idx_epoches) = size_ripple(1);
-    previous_ripple_nr(idx_epoches) = sum(nr_ripples) - nr_ripples(idx_epoches);
+    ripple.ripplesinfo{idx_epoches} = ripples;
     for i = 1 : nr_ripples(idx_epoches)
         start_idx = find(t == ripples.timestamps(i, 1));
         end_idx = find(t == ripples.timestamps(i, 2));
-        index = i + previous_ripple_nr(idx_epoches);
-        ripple.timestamp{index} = t(start_idx : end_idx);
-        ripple.amplitude{index} = data(start_idx : end_idx);
+        ripple.epoches{idx_epoches}.timestamp{i} = t(start_idx : end_idx);
+        ripple.epoches{idx_epoches}.amplitude{i} = ripples.signal(start_idx : end_idx);
     end
 end
+
+
 
 save(fullfile(pwd, ['ripple.info.mat']),'ripple');
